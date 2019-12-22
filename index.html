@@ -1,0 +1,333 @@
+<html>
+
+<head>
+    <title>
+        Aster chart d3js
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <style>
+        body {
+            font-family: cursive;
+        }
+
+        .x.axis path {
+            display: none;
+        }
+
+        .aster-score {
+            line-height: 1;
+            font-weight: bold;
+            font-size: 500%;
+        }
+
+        .d3-tip {
+            line-height: 2;
+            padding: 12px;
+            background: rgba(255, 135, 77, 1);
+            color: #fff;
+            border-radius: 2px;
+        }
+
+        /* Creates a small triangle extender for the tooltip */
+
+        .d3-tip:after {
+            box-sizing: border-box;
+            display: inline;
+            font-size: 10px;
+            width: 100%;
+            line-height: 1;
+            color: rgba(255, 135, 77, 1);
+            content: "\25BC";
+            position: absolute;
+            text-align: center;
+        }
+
+        /* Style northward tooltips differently */
+
+        .d3-tip.n:after {
+            margin: -1px 0 0 0;
+            top: 100%;
+            left: 0;
+        }
+
+        #general-statics {
+            width: 450;
+            height: 380;
+            position: relative;
+            margin: 0 auto;
+            margin-top: 2em;
+        }
+
+        #general-statics .circle {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            /* background: #000; */
+            top: 50%;
+            right: 50%;
+            margin-top: -40px;
+            margin-right: -40px;
+            border-radius: 50%;
+            border: 10px solid rgba(0, 0, 0, 0.14);
+            z-index: 1;
+        }
+
+        .circled-statics {
+            padding: 0;
+            margin-top: 3em;
+        }
+
+        .circled-statics li {
+            font-size: 15px;
+            white-space: nowrap;
+            margin-bottom: 10px;
+            list-style: none;
+        }
+
+        .circled-statics .circle {
+            display: inline-block;
+            width: 16px;
+            vertical-align: middle;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .circle--gray {
+            background: #dedede;
+        }
+
+        .circle--red {
+            background: #ef3a54;
+        }
+
+        .circle--blue {
+            background: #0ab1f2;
+        }
+
+        .circle--orange {
+            background: #f97432;
+        }
+
+        .circle--yellow {
+            background: #ffb81a;
+        }
+
+        .circle--green {
+            background: #1ed6a5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top: 1rem;
+            padding-right: 20px;
+        }
+
+        .container>div {
+            widows: 50px;
+            float: left;
+        }
+
+        @media(max-width:767px) {
+            #general-statics .circle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <div class="container">
+        <div class="first">
+            <div id="general-statics">
+                <div class="circle">
+                </div>
+            </div>
+
+        </div>
+        <div class="second">
+
+
+            <ul class="circled-statics">
+                <li><span>set 1</span> <span class="circle circle--gray"></span>
+                </li>
+                <li><span>set 2</span> <span class="circle circle--red"></span>
+                </li>
+                <li><span>set 3</span> <span class="circle circle--blue"></span>
+                </li>
+                <li><span>set 4</span> <span class="circle circle--orange"></span>
+                </li>
+                <li><span>set 5</span> <span class="circle circle--yellow"></span>
+                </li>
+                <li><span>set 6</span> <span class="circle circle--green"></span>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+
+
+
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.0.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
+    <script>
+
+        //general statics line chart
+
+        if ($(window).width() > 767) {
+            var width = 450,
+                height = 380,
+                radius = Math.min(width, height) / 2,
+                innerRadius = 0.14 * radius;
+        } else {
+            var width = 350,
+                height = 300,
+                radius = Math.min(width, height) / 2,
+                innerRadius = 0.15 * radius;
+        }
+
+
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function (d) { return d.score; });
+
+        var tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([0, 0])
+            .html(function (d) {
+                return d.data.label + ": <span style='color:#fff'>" + d.data.score + "</span>";
+            });
+
+        var arc = d3.svg.arc()
+            .innerRadius(innerRadius)
+            .outerRadius(function (d) {
+                return (radius - innerRadius) * (d.data.score / 100.0) + innerRadius;
+            });
+
+        var outlineArc = d3.svg.arc()
+            .innerRadius(innerRadius)
+            .outerRadius(radius);
+
+        var svg = d3.select("#general-statics").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ") scale(1.08)");
+
+
+        svg.call(tip);
+
+
+
+        var data = [
+            {
+                label: 'set n1',
+                score: 55,
+                color: '#ef3a54',
+            },
+            {
+                label: 'set n2',
+                score: 70,
+                color: '#0ab1f2',
+            },
+            {
+                label: 'set n3',
+                score: 35,
+                color: '#f97432',
+            },
+            {
+                label: 'set n4',
+                score: 50,
+                color: '#ffb81a',
+            },
+            {
+                label: 'set n5',
+                score: 30,
+                color: '#1ed6a5',
+            },
+            {
+                label: 'set n6',
+                score: 75,
+                color: '#dedede',
+            },
+        ];
+
+        var ringArc = d3.svg.arc();
+
+
+
+        var path = svg.selectAll(".solidArc")
+            .data(pie(data))
+            .enter().append("path")
+            .attr("fill", function (d) { return d.data.color; })
+            .attr("class", "solidArc")
+            .attr("stroke", "none")
+            .attr("d", arc)
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
+
+        var outerPath = svg.selectAll(".outlineArc")
+            .data(pie(data))
+            .enter().append("path")
+            .attr("fill", "none")
+            .attr("stroke", "none")
+            .attr("class", "outlineArc")
+            .attr("d", outlineArc);
+
+
+
+
+
+        var text = svg.selectAll(".textArc")
+            .data(pie(data))
+            .enter().append("text")
+            .attr("class", "textArc")
+            .attr("fill", "#333")
+            .attr("dy", ".25em")
+            .text(function (d) { return d.data.score })
+            .attr("transform", function (d) { return getTextTransform(d, this); });
+
+
+
+        function getTextTransform(d, e) {
+            var translate = [];
+            var element = e.getBBox();
+            var margin = 36;
+            //var rotate = (d.startAngle + (d.endAngle - d.startAngle)/2) * 57.2958;
+            var rotate = (d.startAngle + d.endAngle) / 2;
+
+            if (rotate > 3.14159) {
+                //leftside
+                translate[0] = (innerRadius + element.width + margin) * Math.sin(rotate);
+                translate[1] = -(innerRadius + element.width + margin) * Math.cos(rotate);
+                rotate = 90 + rotate * 57.2958;
+            }
+            else {
+                //rightside
+                translate[0] = (innerRadius + margin) * Math.sin(rotate);
+                translate[1] = -(innerRadius + margin) * Math.cos(rotate);
+                rotate = -90 + rotate * 57.2958;
+            }
+            // return "translate(" + translate.join(',') + ") rotate(" + rotate + ")";
+            return "translate(" + translate.join(',') + ") ";
+        }
+
+
+
+
+
+    </script>
+
+
+
+</body>
+
+
+</html>
